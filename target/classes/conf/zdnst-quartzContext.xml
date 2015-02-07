@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+		xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--定时器所有业务接口类-->
+	<bean id="actionQuartzService" class="com.zdnst.maps.action.services.impl.ActionQuartzServiceImpl">   
+	</bean> 
+	
+	<bean id="groupQuartzService" class="com.zdnst.maps.group.services.impl.GroupQuartzServiceImpl">   
+	</bean> 
+	
+	<bean id="coreQuartzService" class="com.zdnst.maps.core.services.impl.CoreQuartzServiceImpl">   
+	</bean>
+	
+	<!-- 秒级定时器start -->
+	<bean name="secondTransferJob" class="org.springframework.scheduling.quartz.JobDetailBean">   
+        <property name="jobClass" value="com.zdnst.maps.quartz.SecondLeveQuartzJob" />   
+        <property name="jobDataAsMap">   
+            <map>   
+            </map>   
+        </property>   
+    </bean>  
+
+	<bean id="secondCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	    <property name="jobDetail" ref="secondTransferJob" />  
+	     <!-- 每隔30秒触发一次 -->
+	    <property name="cronExpression" value="0/30 * * * * ?" />   
+	</bean>
+	<!-- 秒级定时器end -->
+	
+	<!-- 分级定时器start -->
+	<bean name="minuteTransferJob" class="org.springframework.scheduling.quartz.JobDetailBean">   
+        <property name="jobClass" value="com.zdnst.maps.quartz.MinuteLeveQuartzJob" />   
+        <property name="jobDataAsMap">   
+            <map>   
+            </map>   
+        </property>   
+    </bean>  
+
+	<bean id="minuteCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	    <property name="jobDetail" ref="minuteTransferJob" />  
+	     <!-- 每隔2分钟触发一次-->
+	    <property name="cronExpression" value="0 0/2 * * * ?" />   
+	</bean>
+	<!-- 分级定时器end -->
+	
+	<!-- 时级定时器start -->
+	<bean name="hourTransferJob" class="org.springframework.scheduling.quartz.JobDetailBean">   
+        <property name="jobClass" value="com.zdnst.maps.quartz.HourLeveQuartzJob" />   
+        <property name="jobDataAsMap">   
+            <map>   
+            </map>   
+        </property>   
+    </bean>  
+
+	<bean id="hourCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	    <property name="jobDetail" ref="hourTransferJob" />  
+	     <!-- 每小时的10分30秒触发任务-->
+	    <property name="cronExpression" value="30 10 * * * ?" />   
+	</bean>
+	<!-- 时级定时器end -->
+	
+	
+	
+	<!-- 日级定时器start -->
+	<bean name="dateTransferJob" class="org.springframework.scheduling.quartz.JobDetailBean">   
+        <property name="jobClass" value="com.zdnst.maps.quartz.DateLeveQuartzJob" />   
+        <property name="jobDataAsMap">   
+            <map>   
+            </map>   
+        </property>   
+    </bean>  
+
+	<bean id="dateCronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+	    <property name="jobDetail" ref="dateTransferJob" />  
+	     <!-- 每天凌晨2点50分触发一次-->
+	    <property name="cronExpression" value="0 50 2 * * ?" />
+	    
+	    <!-- 每隔1小时触发一次
+	    <property name="cronExpression" value="0 0 * * * ?" />-->
+	    
+	</bean>
+	<!-- 日级定时器end -->
+	  
+	<bean  id="startQuartz" lazy-init="false" autowire="no"
+	 class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	    <property name="triggers">
+	        <list>
+	            <ref bean="secondCronTrigger" />
+	            <ref bean="minuteCronTrigger" />
+	            <ref bean="hourCronTrigger" />
+	            <ref bean="dateCronTrigger" />
+	        </list>
+	    </property>
+		
+		<property name="schedulerContextAsMap">  
+            <map>  
+                 <entry key="actionQuartzService" value-ref="actionQuartzService"/>   
+                 <entry key="groupQuartzService" value-ref="groupQuartzService"/> 
+                 <entry key="coreQuartzService" value-ref="coreQuartzService"/>   
+                 
+            </map>  
+        </property>  
+	
+	</bean>
+	
+
+</beans>

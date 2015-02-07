@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 查找最新的schemaLocation 访问 http://www.springframework.org/schema/ -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd 
+	http://www.springframework.org/schema/aop  
+	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd"
+	default-lazy-init="true">
+
+
+	<context:property-placeholder location="classpath:web.properties" />
+
+	<!--配置数据源 -->
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+		<!-- <property name="maxActive" value="30" /> <property name="maxIdle" 
+			value="15" /> <property name="maxWait" value="60000" /> <property name="initialSize" 
+			value="5" /> <property name="minIdle" value="5" /> <property name="removeAbandoned" 
+			value="true" /> -->
+	</bean>
+
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:conf/mybatis-config.xml"></property>
+	</bean>
+
+	<!-- 配置事务管理器，注意这里的dataSource和SqlSessionFactoryBean的dataSource要一致，不然事务就没有作用了 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<tx:annotation-driven transaction-manager="txManager" />
+
+	<!-- MyBatis 映射配置,如果接口和mybatis映射文件在同一路径下且命名相同,可采用自动扫描包的方式来注册各种Mapper -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.zdnst.maps.*.dao.impl.mybatis" />
+		<!-- markerInterface接口的子接口都参与到这个扫描 -->
+		<!-- <property name="markerInterface" value="com.zdnst.maps.*.dao.impl.mybatis.*Mapper" 
+			/> -->
+	</bean>
+
+	<!-- 配置数据层实现 -->
+	<context:component-scan base-package="com.zdnst.maps.*.dao.impl" />
+	<!-- enable autowire -->
+	<context:annotation-config />
+	<!-- 配置业务层实现 -->
+	<context:component-scan base-package="com.zdnst.maps.*.services.*.impl" />
+	<!-- enable autowire -->
+	<context:annotation-config />
+
+
+	<!-- 配置扫描路径 -->
+	<!-- 
+	<context:component-scan base-package="com.zdnst.maps">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+ -->
+
+
+
+
+</beans>  
