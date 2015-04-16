@@ -1,6 +1,10 @@
 package com.zdnst.maps.group.dao.impl;
 
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.zdnst.common.persistent.db.IGenericDao;
@@ -16,8 +20,79 @@ public class UrUserDaoMbImpl extends MybatisBaseGenericDAOImpl<UrUser, String>
 	@Autowired
 	UrUserMapper urUserMapper;
 
+	@Autowired
+	protected RedisTemplate<Serializable, Serializable> redisTemplate;
+
 	public IGenericDao getDao() {
 		return this.urUserMapper;
+	}
+
+	public void saveUser(final UrUser user) {
+
+		// redisTemplate.delete(redisKey);
+		// redisTemplate.opsForValue().set(redisKey, condition);
+		// redisTemplate.expire(redisKey, 24 * 365, TimeUnit.HOURS);
+
+		String redisKey = "validcode";
+
+		redisTemplate.delete(redisKey);
+		redisTemplate.opsForValue().set(redisKey, "4567");
+		redisTemplate.expire(redisKey, 3, TimeUnit.MINUTES);
+
+		// 保存到redis
+		// redisTemplate.execute(new RedisCallback<Object>() {
+		// @Override
+		// public Object doInRedis(RedisConnection connection)
+		// throws DataAccessException {
+		// connection.set(
+		// redisTemplate.getStringSerializer().serialize(
+		// "user.uid." + user.getUserId()),
+		// redisTemplate.getStringSerializer().serialize(
+		// user.getUserName()));
+		// return null;
+		// }
+		// });
+
+	}
+
+	public UrUser getUser(final String id) {
+		String redisKey = "validcode";
+//		String verifyResult = redisTemplate.opsForValue().get(
+//				SETTING_VERIFY + pub_openId + "_" + userident);// 从redis当中获取权限校验结果
+//		Object querySettings = redisTemplate.opsForHash().get("usersettings_",
+//				pub_openId + userident + UserSettingType.QUERY);// 从reidis当中获取用户设置的有效期
+//		
+		 
+		
+		String verifyResult = redisTemplate.opsForValue().get(redisKey,0,1);// 从redis当中获取权限校验结果
+		
+		System.out.println(verifyResult);
+		
+//		Object querySettings = redisTemplate.opsForHash().get("usersettings_",
+//				pub_openId + userident + UserSettingType.QUERY);// 从reidis当中获取用户设置的有效期
+		
+
+//		return redisTemplate.execute(new RedisCallback<UrUser>() {
+//			@Override
+//			public UrUser doInRedis(RedisConnection connection)
+//					throws DataAccessException {
+//				byte[] key = redisTemplate.getStringSerializer().serialize(
+//						"user.uid." + id);
+//				if (connection.exists(key)) {
+//					byte[] value = connection.get(key);
+//					String name = redisTemplate.getStringSerializer()
+//							.deserialize(value);
+//					UrUser user = new UrUser();
+//					user.setUserName(name);
+//					user.setUserId(id);
+//					return user;
+//				}
+//				return null;
+//			}
+//		});
+
+		return null;
+		
 	}
 
 	// @Override
