@@ -1,10 +1,5 @@
 package com.zdnst.maps.flow;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import javax.annotation.Resource;
 
 import org.junit.Before;
@@ -12,9 +7,9 @@ import org.junit.Test;
 
 import redis.clients.jedis.Jedis;
 
-import com.zdnst.common.persistent.redis.RedisUtil;
 import com.zdnst.maps.AbstractTestCase;
 import com.zdnst.maps.group.dao.IUserDao;
+import com.zdnst.maps.group.entity.UrUser;
 
 public class RedisTest extends AbstractTestCase {
 
@@ -29,6 +24,34 @@ public class RedisTest extends AbstractTestCase {
 		jedis = new Jedis("192.168.1.50", 6379);
 		// 权限认证
 		jedis.auth("password");
+	}
+	
+	
+	@Test
+	public void testUserDaoInRedis(){
+		
+		String id="testid001";
+		UrUser user = new UrUser();
+		
+		user.setUserId(id);
+		user.setUserName("开始理论上");
+		
+		userDao.saveUser(user);
+		
+		
+		
+		UrUser user1 = userDao.getUser(id);
+		
+		System.out.println(" from redis:" + user1);
+		
+		System.out.println( System.currentTimeMillis());
+		UrUser user3 = userDao.selectByPrimaryKey("62ED99B1-4379-4058-BC35-F26EAC02D10E");
+		System.out.println( System.currentTimeMillis());
+		
+		System.out.println(" from db:" + user3);
+		
+		
+		
 	}
 
 	/**

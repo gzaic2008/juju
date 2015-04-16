@@ -69,11 +69,9 @@
 		/> </context:component-scan> -->
 
 	<!-- redis setting -->
-	<!-- 
-	  使用同一个properties
-	<context:property-placeholder location="classpath:redis.properties" />
-     -->
-     
+	<!-- 使用同一个properties <context:property-placeholder location="classpath:redis.properties" 
+		/> -->
+
 	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
 		<property name="maxIdle" value="${redis.maxIdle}" />
 		<property name="maxTotal" value="${redis.maxActive}" />
@@ -86,8 +84,14 @@
 		p:host-name="${redis.host}" p:port="${redis.port}" p:password="${redis.pass}"
 		p:pool-config-ref="poolConfig" />
 
-	<bean id="redisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
-		<property name="connectionFactory" ref="connectionFactory" />
+	<bean id="stringRedisSerializer"
+		class="org.springframework.data.redis.serializer.StringRedisSerializer">
+	</bean>
+
+	<bean id="redisTemplate" name="redisTemplate"
+		class="org.springframework.data.redis.core.RedisTemplate"
+		p:connection-factory-ref="connectionFactory" p:keySerializer-ref="stringRedisSerializer"
+		p:hashKeySerializer-ref="stringRedisSerializer">
 	</bean>
 
 	<!-- <bean id="userDao" class="com.x.dao.impl.UserDao" /> -->
